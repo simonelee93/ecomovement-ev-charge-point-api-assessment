@@ -26,7 +26,11 @@ class Router
         foreach (array_keys($this->routes) as $registeredPath) {
             if ($registeredPath !== $path && $this->normalizePattern($registeredPath) === $pattern) {
                 throw new InvalidArgumentException(
-                    sprintf('Route "%s" conflicts with "%s". Use the same parameter names for all methods.', $path, $registeredPath),
+                    sprintf(
+                        'Route "%s" conflicts with registered route "%s".',
+                        $path,
+                        $registeredPath,
+                    )
                 );
             }
         }
