@@ -1,0 +1,38 @@
+#!/bin/sh
+
+set -eu
+
+ROOT_DIR=$(cd "$(dirname "$0")/.." && pwd)
+ENV_FILE="$ROOT_DIR/.env"
+
+if [ ! -f "$ENV_FILE" ]; then
+    echo "Configuration file .env not found." >&2
+    exit 1
+fi
+
+APP_PORT=$(php -r '
+$config = parse_ini_file($argv[1], false, INI_SCANNER_RAW);
+
+if ($config === false || !isset($config["APP_PORT"])) {
+    fwrite(STDERR, "APP_PORT is missing from .env\n");
+    exit(1);
+}
+
+echo $config["APP_PORT"];
+' "$ENV_FILE")
+
+case "$APP_PORT" in
+    ''|*[!0-9]*)
+        echo "APP_PORT must be a number." >&2
+        exit 1
+        ;;
+esac
+
+if [ "$APP_PORT" -lt 1 ] || [ "$APP_PORT" -gt 65535 ]; then
+    echo "APP_PORT must be between 1 and 65535." >&2
+    exit 1
+fi
+
+exec php -S "localhost:$APP_PORT" \
+    -t "$ROOT_DIR/public" \
+    "$ROOT_DIR/public/router.php"

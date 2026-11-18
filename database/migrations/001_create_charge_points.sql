@@ -1,4 +1,4 @@
-CREATE TABLE charge_points
+CREATE TABLE IF NOT EXISTS charge_points
 (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
