@@ -9,7 +9,11 @@ readonly class Request
     private string $method;
     private string $uri;
 
-    public function __construct(string $method, string $uri)
+    public function __construct(
+        string $method,
+        string $uri,
+        private string $body = '',
+    )
     {
         $this->method = strtoupper($method);
         $this->uri = $uri;
@@ -23,6 +27,7 @@ readonly class Request
         return new self(
             $method,
             $uri,
+            file_get_contents('php://input') ?: '',
         );
     }
 
@@ -41,6 +46,11 @@ readonly class Request
         $path = parse_url($this->uri, PHP_URL_PATH);
 
         return is_string($path) && $path !== '' ? $path : '/';
+    }
+
+    public function getBody(): string
+    {
+        return $this->body;
     }
 
     /**
